@@ -5,7 +5,7 @@ import random
 from kakuro_types import Grid
 
 DIFFICULTY_LEVELS = { # difficulty: (black density within grid, max white run length)
-    "easy": (0.3, 4),
+    "easy": (0.38, 4),
     "medium": (0.22, 5),
     "hard": (0.15, 6),
 }
