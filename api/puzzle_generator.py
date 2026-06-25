@@ -1,11 +1,12 @@
 import random
+import calendar
 from kakuro_types import Grid
+from datetime import date
+
 
 GRID_SIZE = 9
 BLACK_DENSITY_MIN = 0.55
 BLACK_DENSITY_MAX = 0.65
-
-GENERATE_GRIDS_COUNT = 31 #number of grids to generate for a month(approx)
 
 
 def generate_kakuro_grid(rng=random):
@@ -67,9 +68,9 @@ def generate_kakuro_grid(rng=random):
 
 
 def validate_puzzle(grid):
-    black_cells = [[cell == '#' for cell in row] for row in grid]
     n = GRID_SIZE
-    if len(black_cells) not in range(BLACK_DENSITY_MIN * n * n, BLACK_DENSITY_MAX * n * n):
+    black_cells = sum(black_cells[r][c] for r in range(n) for c in range(n))
+    if not (BLACK_DENSITY_MIN <= black_cells / (n * n) <= BLACK_DENSITY_MAX):
         return False
     
     # DFS check to see if all white cells are connected
@@ -104,23 +105,25 @@ def validate_puzzle(grid):
     return True
 
 
-
-def generate_grids():
-    grids = []
-    while len(grids) < GENERATE_GRIDS_COUNT:
-        grid = generate_kakuro_grid()
-        grid.difficulty = set_difficulty(grid)
-        if grid:
-            grids.append(grid)
-    return grids
-
-
 def set_difficulty(grid):
     return "easy" #placeholder for difficulty logic
 
 
-def generate_monthly_grids():
-    grids = generate_grids()
-    for i, grid in enumerate(grids):
-        grid.id = f"grid_{i+1}"
-        
+def generate_monthly_grids(year: int, month: int):
+    num_days = calendar.monthrange(year, month)[1]
+    monthly = {}
+
+    for day in range(1, num_days + 1):
+        date_str = f"{year}-{month:02d}-{day:02d}"
+        seed = int(date(year, month, day).strftime("%Y%m%d"))
+        rng = random.Random(seed)
+
+        grid = None
+        while grid is None:
+            grid = generate_kakuro_grid(rng)
+
+        grid.id = date_str
+        grid.difficulty = set_difficulty(grid)
+        monthly[date_str] = grid
+
+    return monthly
