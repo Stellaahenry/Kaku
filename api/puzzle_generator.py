@@ -1,8 +1,11 @@
 import random
+from kakuro_types import Grid
 
 GRID_SIZE = 9
 BLACK_DENSITY_MIN = 0.55
 BLACK_DENSITY_MAX = 0.65
+
+GENERATE_GRIDS_COUNT = 31 #number of grids to generate for a month(approx)
 
 
 def generate_kakuro_grid(rng=random):
@@ -58,7 +61,8 @@ def generate_kakuro_grid(rng=random):
     
     if validate_puzzle(black_cells):
         grid = [''.join('#' if black_cells[r][c] else '.' for c in range(n)) for r in range(n)]
-        return grid
+        grid_object = Grid("candidate", "?", grid)
+        return grid_object
     return None
 
 
@@ -98,3 +102,25 @@ def validate_puzzle(grid):
     if len(visited) != sum(not cell for row in black_cells for cell in row):
         return False
     return True
+
+
+
+def generate_grids():
+    grids = []
+    while len(grids) < GENERATE_GRIDS_COUNT:
+        grid = generate_kakuro_grid()
+        grid.difficulty = set_difficulty(grid)
+        if grid:
+            grids.append(grid)
+    return grids
+
+
+def set_difficulty(grid):
+    return "easy" #placeholder for difficulty logic
+
+
+def generate_monthly_grids():
+    grids = generate_grids()
+    for i, grid in enumerate(grids):
+        grid.id = f"grid_{i+1}"
+        
