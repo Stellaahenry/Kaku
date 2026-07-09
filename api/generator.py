@@ -1,7 +1,9 @@
 import random
 import calendar
-from kakuro_types import Grid
+from api.kakuro_types import Grid
 from datetime import date
+from api.solver import generate_unique_puzzle
+from api.serializer import puzzle_to_json
 
 
 GRID_SIZE = 9
@@ -67,10 +69,10 @@ def generate_kakuro_grid(rng=random):
     return None
 
 
-def validate_puzzle(grid):
+def validate_puzzle(black_cells):
     n = GRID_SIZE
-    black_cells = sum(black_cells[r][c] for r in range(n) for c in range(n))
-    if not (BLACK_DENSITY_MIN <= black_cells / (n * n) <= BLACK_DENSITY_MAX):
+    black_count = sum(black_cells[r][c] for r in range(n) for c in range(n))
+    if not (BLACK_DENSITY_MIN <= black_count / (n * n) <= BLACK_DENSITY_MAX):
         return False
     
     # DFS check to see if all white cells are connected
@@ -127,3 +129,19 @@ def generate_monthly_grids(year: int, month: int):
         monthly[date_str] = grid
 
     return monthly
+
+
+def generate_monthly_puzzles(year: int, month: int):
+    grids = generate_monthly_grids(year, month)
+    puzzles = {}
+
+    for date_str, grid in grids.items():
+        rng = random.Random(int(date_str.replace("-", "")))
+        result = generate_unique_puzzle(grid, rng)
+
+        if result is None:
+            continue
+
+        puzzles[date_str] = puzzle_to_json(grid, result)
+
+    return puzzles

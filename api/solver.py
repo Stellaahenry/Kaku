@@ -6,7 +6,7 @@ import random
 from functools import lru_cache
 from itertools import combinations
 
-from kakuro_types import Grid, Run
+from api.kakuro_types import Grid, Run
 
 DIGITS = range(1, 10)
 ALL = 0b1111111110   #bitmask of digits 1..9 (bit d set means digit d available)
@@ -288,8 +288,6 @@ def generate_unique_puzzle(grid, rng, max_iters=20000, restart_after=600):
     _set_totals(runs, fill)
     return None
 
-
-# ------------------------------------------------------------------ export
 
 def puzzle_to_json(grid, result):
     """Serialise to the format the app consumes.
