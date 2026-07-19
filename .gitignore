@@ -10,7 +10,7 @@ venv/
 api/puzzles/
 
 # Frontend
-frontend/node_modules/
+node_modules/
 frontend/dist/
 
 # macOS
