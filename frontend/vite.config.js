@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': 'http://localhost:8000',  // forward API calls to FastAPI
+      '/puzzles': 'http://localhost:8000',  // forward API calls to FastAPI
     },
   },
 })
