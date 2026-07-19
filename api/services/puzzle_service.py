@@ -12,6 +12,13 @@ def get_puzzle_for_date(date_str: str):
     return puzzle.public_payload()
 
 
+def check_solution(date_str: str, submitted: list) -> bool:
+    solution = db.fetch_solution(date_str)
+    if solution is None:
+        raise PuzzleNotFound
+    return submitted == solution
+
+
 def generate_and_store_month(year: int, month: int):
     puzzles = generate_monthly_puzzles(year, month)
     db.upsert_puzzles(puzzles)

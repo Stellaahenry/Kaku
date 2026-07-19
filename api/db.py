@@ -31,6 +31,20 @@ def fetch_puzzle(date_str: str) -> Puzzle | None:
     return Puzzle.from_row(resp.data[0])
 
 
+def fetch_solution(date_str: str) -> list | None:
+    resp = (
+        get_client()
+        .table(SOLUTIONS_TABLE)
+        .select("solution")
+        .eq("puzzle_date", date_str)
+        .limit(1)
+        .execute()
+    )
+    if not resp.data:
+        return None
+    return resp.data[0]["solution"]
+
+
 def upsert_puzzles(puzzles: dict) -> None:
     client = get_client()
     for date_str, payload in puzzles.items():
