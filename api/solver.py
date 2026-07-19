@@ -1,40 +1,38 @@
-"""Kakuro solver: backtracking uniqueness check and unique puzzle generator.
-Given a Grid (from kakuro_types.py), fills white cells with digits 1-9
-such that each run's digits are distinct and sum to the clue value.
+"""Kakuro solver - backtracking uniqueness check and unique puzzle generator.
+Given a Grid this fills white cells with digits 1-9 so that each run's 
+digits are distinct and sum to the clue value.
 """
-import random
 from functools import lru_cache
 from itertools import combinations
 
 from api.kakuro_types import Grid, Run
 
 DIGITS = range(1, 10)
-ALL = 0b1111111110   #bitmask of digits 1..9 (bit d set means digit d available)
+ALL = 0b1111111110   #bitmask of digits 1 to 9 
 
-# SUBSETS - list of bitmasks: all valid digit combinations
+# SUBSETS --> list of all valid digit combinations
 SUBSETS = {}
-for _k in range(1, 10):
-    for _combo in combinations(DIGITS, _k):
-        _m = sum(1 << d for d in _combo)
-        SUBSETS.setdefault((_k, sum(_combo)), []).append(_m)
+for i in range(1, 10):
+    for combo in combinations(DIGITS, i):
+        j = sum(1 << d for d in combo)
+        SUBSETS.setdefault((i, sum(combo)), []).append(j) #add bitmask of each combination to the dict
 
 
-@lru_cache(maxsize=None)
-def _bounds(avail_mask, k):
-    """(min, max) sum of k distinct digits drawable from avail_mask, or None."""
+@lru_cache(maxsize=None) #cache results for speed
+def bounds(avail_mask, k):
+    """returns the max and min possible sum of k distinct digits from the available digits"""
     digits = [d for d in DIGITS if avail_mask >> d & 1]
     if len(digits) < k:
         return None
     return sum(digits[:k]), sum(digits[-k:])
 
 
-# ----------------------------------------------------------------- solver
 
 class Solver:
-    """Backtracking solution counter. Stops at `limit` (default 2).
+    """Backtracking solution counter. Stops at a certain limit (default is 2 for uniqueness)
 
-    Pruning: digit distinctness per run + remaining-sum bounds from digits
-    still available. Cell order is dynamic (MRV: branch on fewest candidates).
+    Pruning methods: digit distinctness per run + remaining-sum bounds from digits still available
+    Cell order is dynamic (MRV: branch on fewest candidates)
     """
 
     def __init__(self, grid, across, down):
@@ -44,25 +42,25 @@ class Solver:
             for cell in run.cells:
                 self.cell_runs.setdefault(cell, []).append(run)
         self.all_cells = sorted(self.cell_runs)
-        self.run_used = {id(run): 0 for run in across + down}
+        self.run_used = {id(run): 0 for run in across + down} # how much of the run is used (as a bitmask)
         self.run_left = {id(run): len(run.cells) for run in across + down}
         self.run_sum  = {id(run): 0 for run in across + down}
 
-    def count(self, limit=2):
+    def count(self, limit=2): #finds the count of solutions up to a limit (defaults to 2 for unique solution)
         self.values = {}
         self.limit = limit
         self.found = 0
-        self._search()
+        self.search()
         return self.found
 
-    def _candidates(self, cell):
+    def candidates(self, cell): #calculates which digits can legally go into a given cell
         runs = self.cell_runs[cell]
         free = ALL
         for run in runs:
             free &= ~self.run_used[id(run)]
         out = []
-        for d in DIGITS:
-            if not free >> d & 1:
+        for d in DIGITS: 
+            if not free >> d & 1: #if that digit is already used in one of the runs, skip it
                 continue
             ok = True
             for run in runs:
@@ -73,36 +71,36 @@ class Solver:
                     if rem != 0:
                         ok = False; break
                 else:
-                    b = _bounds(ALL & ~self.run_used[rid] & ~(1 << d), left)
+                    b = bounds(ALL & ~self.run_used[rid] & ~(1 << d), left)
                     if b is None or rem < b[0] or rem > b[1]:
                         ok = False; break
             if ok:
                 out.append(d)
         return out
 
-    def _search(self):
+    def search(self):
         if self.found >= self.limit:
             return
         best_cell, best_cands = None, None
         for cell in self.all_cells:
             if cell in self.values:
                 continue
-            cands = self._candidates(cell)
-            if best_cands is None or len(cands) < len(best_cands):
+            cands = self.candidates(cell)
+            if best_cands is None or len(cands) < len(best_cands): #MRV heuristic: branch on the cell with the fewest candidates
                 best_cell, best_cands = cell, cands
                 if len(cands) <= 1:
                     break
-        if best_cell is None:
+        if best_cell is None: #all cells filled, found a solution
             self.found += 1
             return
         for d in best_cands:
-            self._place(best_cell, d)
-            self._search()
-            self._unplace(best_cell, d)
-            if self.found >= self.limit:
+            self.place(best_cell, d) 
+            self.search() #recurse to fill the next cell
+            self.unplace(best_cell, d) #backtrack to try the next candidate
+            if self.found >= self.limit: 
                 return
 
-    def _place(self, cell, d):
+    def place(self, cell, d):
         self.values[cell] = d
         for run in self.cell_runs[cell]:
             rid = id(run)
@@ -110,7 +108,7 @@ class Solver:
             self.run_sum[rid]  += d
             self.run_left[rid] -= 1
 
-    def _unplace(self, cell, d):
+    def unplace(self, cell, d):
         del self.values[cell]
         for run in self.cell_runs[cell]:
             rid = id(run)
@@ -119,11 +117,8 @@ class Solver:
             self.run_left[rid] += 1
 
 
-# -------------------------------------------------- constraint propagation
-
 def propagate(runs):
-    """Propagate constraints to fixpoint. Returns cell -> candidate bitmask.
-    If every mask is a single bit, the puzzle is uniquely solvable by logic alone."""
+    """Propagate constraints to reduce candidates for each cell. Returns {cell: bitmask of candidates}."""
     cand = {}
     for run in runs:
         for cell in run.cells:
@@ -167,13 +162,12 @@ def propagation_score(runs):
     for m in cand.values():
         n = bin(m).count('1')
         if n == 0:
-            return 10_000   # contradiction
+            return 10000 #contradiction
         if n > 1:
             score += 1
     return score
 
 
-# ---------------------------------------------------- puzzle generation
 
 def random_fill(grid, rng):
     """Assign digits to all white cells, distinct within every run.

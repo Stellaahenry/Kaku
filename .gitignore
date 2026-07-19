@@ -4,6 +4,7 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+.env
 
 # Puzzle cache (regenerated on demand)
 api/puzzles/
