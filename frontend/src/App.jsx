@@ -9,6 +9,11 @@ function formatTime(totalSeconds) {
     return `${m}:${s}`
 }
 
+function formatDate(dateStr) {
+    const date = new Date(dateStr)
+    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
 export default function App() {
     const [puzzle, setPuzzle] = useState(null)
     const [error, setError] = useState(null)
@@ -93,9 +98,9 @@ export default function App() {
 
     return (
         <div className="page">
-            <h1>Kaku</h1>
+            <h1>Kaku.</h1>
             <div className="details">
-                {puzzle.date}
+                {formatDate(puzzle.date)}
             </div>
             <div className="grid-wrap">
                 <div className="toolbar">
@@ -116,7 +121,7 @@ export default function App() {
                 </div>
                 <div
                     className="grid"
-                    style={{ gridTemplateColumns: `repeat(${puzzle.cols}, 60px)` }}
+                    style={{ gridTemplateColumns: `repeat(${puzzle.cols}, var(--cell-size))` }}
                 >
                     {puzzle.cells.flatMap((row, r) =>
                         row.map((cell, c) => (
@@ -129,7 +134,7 @@ export default function App() {
                             />
                         ))
                     )}
-                </div>
+            </div>
             </div>
             <button className="submit-button" onClick={handleSubmit}>Submit</button>
             {submitError && <div className="submit-error">Not quite - keep trying!</div>}

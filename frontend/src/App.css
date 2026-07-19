@@ -1,24 +1,39 @@
+:root {
+    --cell-size: 60px;
+}
+
+@media (max-width: 600px) {
+    :root {
+        --cell-size: 44px;
+    }
+}
+
+@media (max-width: 380px) {
+    :root {
+        --cell-size: 32px;
+    }
+}
+
 body {
-    font-family: sans-serif;
-    background: #f5f5f5;
+    font-family: monospace;
+    background: #F4F1EA url('/background-image.jpg') center / cover no-repeat fixed;
 }
 
 .page {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2rem;
+    padding: 1rem;
 }
 
 .details {
-    color: #666;
-    margin-bottom: 3rem;
+    color: #34362E;
+    margin-bottom: 2rem;
     text-transform: capitalize;
 }
 
 .status {
     padding: 2rem;
-    font-family: sans-serif;
 }
 
 .grid {
@@ -26,16 +41,17 @@ body {
     border: 2px solid #222;
 }
 
+
 .cell {
-    width: 60px;
-    height: 60px;
+    width: var(--cell-size);
+    height: var(--cell-size);
     box-sizing: border-box;
     border: 1px solid #999;
     position: relative;
 }
 
 .cell.block {
-    background: #222;
+    background: #34362E;
 }
 
 .cell.clue {
@@ -47,24 +63,25 @@ body {
     position: absolute;
     top: 1px;
     right: 3px;
-    font-size: 10px;
+    font-size: clamp(8px, calc(var(--cell-size) * 0.18), 10px);
 }
 
 .cell.clue .down {
     position: absolute;
     bottom: 1px;
     left: 3px;
-    font-size: 10px;
+    font-size: clamp(8px, calc(var(--cell-size) * 0.18), 10px);
 }
 
 .cell.entry {
     background: #fff;
     border: 1px solid #999;
     text-align: center;
-    font-size: 24px;
+    font-size: clamp(16px, calc(var(--cell-size) * 0.4), 24px);
     padding: 0;
     outline: none;
     caret-color: transparent;
+    font-family: monospace;
 }
 
 .cell.entry:focus {
@@ -72,10 +89,13 @@ body {
 }
 
 .submit-button {
+    font-family: monospace;
     margin-top: 1rem;
     padding: 0.5rem 1rem;
     font-size: 16px;
     cursor: pointer;
+    background-color: #E95927;
+    color: #F4F1EA;
 }
 
 .grid-wrap {
@@ -101,23 +121,28 @@ body {
 .reset-button {
     background: none;
     border: none;
-    padding: 0;
     font-size: 14px;
-    color: grey;
+    color: #34362E;
     text-decoration: underline;
     cursor: pointer;
+    font-family: monospace;
+    background-color: #F4F1EA;
+    padding-left: 2px;
+    padding-right: 2px;
 }
 
 .timer-wrap {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    background-color: #F4F1EA;
+    padding-left: 2px;
 }
 
 .timer {
     font-family: monospace;
     font-size: 14px;
-    color: #333;
+    color: #34362E;
 }
 
 .pause-button {
@@ -126,7 +151,7 @@ body {
     background: none;
     border: none;
     padding: 0;
-    color: grey;
+    color: #34362E;
     cursor: pointer;
 }
 
@@ -151,10 +176,22 @@ body {
     padding: 0.5rem 1.5rem;
     font-size: 16px;
     cursor: pointer;
+    background-color: #E95927;
+    color: #F4F1EA;
+    font-family: monospace;
 }
 
 .submit-error {
     margin-top: 0.5rem;
-    color: #c0392b;
+    color: #E95927;
     font-size: 14px;
+}
+
+h1 {
+    font-family: "IM Fell DW Pica", serif;
+    font-weight: 1500;
+    font-size: 3rem;
+    color: #34362E;
+    letter-spacing: 15%;
+    margin-bottom: 0;
 }
