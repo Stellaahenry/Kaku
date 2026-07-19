@@ -16,7 +16,7 @@
 
 body {
     font-family: monospace;
-    background: #F4F1EA url('/background-image.jpg') center / cover no-repeat fixed;
+    background: #F4F1EA url('./assets/background-image.jpg') center / cover no-repeat fixed;
 }
 
 .page {
@@ -33,7 +33,10 @@ body {
 }
 
 .status {
-    padding: 2rem;
+    display: inline-block;
+    background-color: #F4F1EA;
+    padding-left: 2px;
+    padding-right: 2px;
 }
 
 .grid {
