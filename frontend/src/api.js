@@ -1,6 +1,14 @@
+function getLocalDateString() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 export async function fetchToday() {
     try {
-        const response = await fetch('/puzzles/today');
+        const response = await fetch(`/puzzles/${getLocalDateString()}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
