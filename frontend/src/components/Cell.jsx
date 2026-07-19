@@ -25,6 +25,11 @@ export default function Cell({ cell, r, c, onNavigate }) {
                 e.target.value = e.target.value.replace(/[^1-9]/g, '')
             }}
             onKeyDown={(e) => {
+                if (e.key === 'Backspace' || e.key === 'Delete') {
+                    e.preventDefault()
+                    e.target.value = ''
+                    return
+                }
                 if (ARROW_KEYS.includes(e.key)) {
                     e.preventDefault()
                     onNavigate(r, c, e.key)
