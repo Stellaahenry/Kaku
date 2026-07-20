@@ -21,6 +21,9 @@ export default function App() {
     const [paused, setPaused] = useState(false)
     const [solved, setSolved] = useState(false)
     const [submitError, setSubmitError] = useState(false)
+    const [mode, setMode] = useState('normal')
+    const [resetKey, setResetKey] = useState(0)
+    const [showInfo, setShowInfo] = useState(false)
 
     useEffect(() => {
         fetchToday()
@@ -63,13 +66,7 @@ export default function App() {
     }
 
     const handleReset = () => {
-        puzzle.cells.forEach((row, r) => {
-            row.forEach((cell, c) => {
-                if (cell.type !== 'entry') return
-                const el = document.getElementById(`cell-${r}-${c}`)
-                if (el) el.value = ''
-            })
-        })
+        setResetKey((k) => k + 1)
         setSubmitError(false)
     }
 
@@ -98,13 +95,35 @@ export default function App() {
 
     return (
         <div className="page">
-            <h1>Kaku.</h1>
+            <div className='title-wrapper'>
+                <span className="title-spacer" aria-hidden="true" />
+                <h1>Kaku.</h1>
+                <button className='more-info-button' 
+                onClick={() => setShowInfo(true)}
+                aria-label="Show Instructions">?</button>
+            </div>
             <div className="details">
                 {formatDate(puzzle.date)}
             </div>
             <div className="grid-wrap">
                 <div className="toolbar">
                         <button className="reset-button toolbar-left" onClick={handleReset}>Reset Puzzle</button>
+                    <div className="mode-toggle" role="group" aria-label="Entry mode">
+                        <button
+                            type="button"
+                            className={`mode-button ${mode === 'normal' ? 'active' : ''}`}
+                            onClick={() => setMode('normal')}
+                        >
+                            Normal
+                        </button>
+                        <button
+                            type="button"
+                            className={`mode-button ${mode === 'candidate' ? 'active' : ''}`}
+                            onClick={() => setMode('candidate')}
+                        >
+                            Candidate
+                        </button>
+                    </div>
                     <div className="timer-wrap">
                         <span className="timer">{formatTime(seconds)}</span>
                         <button
@@ -126,10 +145,11 @@ export default function App() {
                     {puzzle.cells.flatMap((row, r) =>
                         row.map((cell, c) => (
                             <Cell
-                                key={`${r}-${c}`}
+                                key={`${r}-${c}-${resetKey}`}
                                 cell={cell}
                                 r={r}
                                 c={c}
+                                mode={mode}
                                 onNavigate={handleNavigate}
                             />
                         ))
@@ -155,6 +175,21 @@ export default function App() {
                             Play Again
                         </button>
                     </div>
+                </div>
+            )}
+            {showInfo && (
+                <div className="modal-overlay">
+                <div className="modal">
+                    <button
+                        className="modal-close"
+                        onClick={() => setShowInfo(false)}
+                        aria-label="Close"
+                    >
+                        &times;
+                    </button>
+                    <h1>Kaku. Instructions</h1>
+                    <p>Kakuro puzzles have been played for around 76 years when a Canadian puzzle writer created them for American puzzle magazines. Since then these puzzles have been a worldwide craze!</p>
+                </div>
                 </div>
             )}
         </div>
