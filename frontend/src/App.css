@@ -16,7 +16,7 @@
 
 body {
     font-family: monospace;
-    background: #F4F1EA url('./assets/background-image-football.jpg') center / cover no-repeat fixed;
+    background: #F4F1EA url('./assets/background-image.jpg') center / cover no-repeat fixed;
 }
 
 .page {
